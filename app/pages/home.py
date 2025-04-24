@@ -1,5 +1,5 @@
 import streamlit as st
 
 def app():
-    st.title("📄 أداة تحليل المواقع متعددة اللغات")
-    st.write("مرحبًا بك في أداة تحليل المواقع. يرجى إدخال رابط الموقع لبدء التحليل.")
+    st.title("📄 Multilingual Website Analysis Tool")
+    st.write("Welcome! Please enter a website URL to begin analysis.")
