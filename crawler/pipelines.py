@@ -1,4 +1,4 @@
 class LocalizationPipeline:
     def process_item(self, item, spider):
-        # هنا يمكنك معالجة العناصر المستخرجة، مثل تنظيف النص أو تخزينه
+        # Optional: clean or transform scraped content
         return item
