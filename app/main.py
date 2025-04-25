@@ -1,19 +1,30 @@
 import streamlit as st
 import subprocess
 import os
+import json
+import zipfile
+import pandas as pd
 
-# UI Configuration
+def create_zip():
+    with zipfile.ZipFile("data/output.zip", "w") as zipf:
+        zipf.write("data/output.json", arcname="output.json")
+
+def json_to_excel(json_file, excel_file):
+    with open(json_file, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    df = pd.DataFrame(data)
+    df.to_excel(excel_file, index=False)
+
+# Streamlit page config
 st.set_page_config(
     layout="wide",
     page_title="Multilingual Website Crawler",
     page_icon="🌐"
 )
 
-# Main Header
 st.title("🌐 Multilingual Website Crawler Tool")
 st.markdown("Analyze and extract multilingual content from websites using Scrapy.")
 
-# Input section
 url = st.text_input("Enter the website URL you want to analyze", "https://example.com")
 
 if st.button("Start Crawling"):
@@ -37,26 +48,24 @@ if st.button("Start Crawling"):
                 st.code(result.stdout)
         else:
             st.success("Crawling completed successfully.")
-            with st.expander("📜 View Output Log"):
-                st.code(result.stdout)
 
-# About / Instructions Section
-st.markdown("---")
-st.subheader("ℹ️ About This Tool")
-st.markdown("""
-This tool crawls websites starting from a given URL, extracts multilingual content, and detects the language of each page.
+            json_path = "data/output.json"
+            zip_path = "data/output.zip"
+            excel_path = "data/output.xlsx"
 
-**Features:**
-- Language detection using `langdetect`
-- HTML parsing using `BeautifulSoup`
-- Structured JSON export via Scrapy pipelines
-- Easy-to-use interface powered by Streamlit
+            if os.path.exists(json_path):
+                create_zip()
+                json_to_excel(json_path, excel_path)
 
-**How to Use:**
-1. Enter the full URL of a website you'd like to crawl.
-2. Click the **Start Crawling** button.
-3. The crawler will extract text content and store it inside the `data/output.json` file.
-4. View logs inside the expanders if something goes wrong.
+                with open(zip_path, "rb") as f:
+                    st.download_button("📦 Download as ZIP", f, file_name="output.zip", mime="application/zip")
 
-> ⚠️ Make sure the target website allows crawling and does not block bots.
-""")
+                with open(excel_path, "rb") as f:
+                    st.download_button("📊 Download as Excel", f, file_name="output.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
+                with open(json_path, "r", encoding="utf-8") as f:
+                    raw_json = json.load(f)
+                with st.expander("📁 View Raw JSON"):
+                    st.json(raw_json)
+            else:
+                st.warning("No output data found. Make sure the spider scraped something.")
