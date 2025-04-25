@@ -2,7 +2,7 @@ import streamlit as st
 import subprocess
 import os
 import pandas as pd
-from app.utils.zip_exporter import zip_html_pages
+from utils.zip_exporter import zip_html_pages
 from bs4 import BeautifulSoup
 import re
 from urllib.parse import urlparse
