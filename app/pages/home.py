@@ -1,32 +1,35 @@
 import streamlit as st
 import subprocess
 import os
-import sys
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+st.title("Multilingual Website Crawler Tool")
 
-from utils.word_counter import analyze_html_files
-from utils.zip_creator import create_language_zips
+url = st.text_input("Enter the website URL you want to analyze", "https://example.com")
 
-def app():
-    st.title("🏠 Home")
-    st.subheader("Start Crawling a Website")
+if st.button("Start Crawling"):
+    if not url:
+        st.warning("Please enter a valid URL.")
+    else:
+        st.info("Starting the crawling process...")
 
-    start_url = st.text_input("Enter the website URL you want to analyze")
+        # Ensure output folder exists
+        os.makedirs("data", exist_ok=True)
 
-    if st.button("Start Crawling"):
-        if not start_url:
-            st.error("Please enter a valid URL.")
-            return
+        # Run the spider and capture output and error logs
+        result = subprocess.run(
+            ["scrapy", "crawl", "multilingual_spider", "-a", f"start_url={url}"],
+            capture_output=True,
+            text=True
+        )
 
-        with st.spinner("Crawling in progress... this may take a few moments."):
-            result = subprocess.run(["python", "run.py", start_url])
-
-            if result.returncode == 0:
-                st.success("Website crawl completed successfully.")
-                st.info("Now generating reports and ZIP files...")
-                analyze_html_files("data/raw", start_url)
-                create_language_zips("data/raw")
-                st.success("Reports and ZIPs generated successfully.")
-            else:
-                st.error("An error occurred during crawling. Please check logs.")
+        # Display logs based on result
+        if result.returncode != 0:
+            st.error("An error occurred during crawling.")
+            with st.expander("🔍 View Error Log (stderr)"):
+                st.code(result.stderr)
+            with st.expander("📜 View Process Log (stdout)"):
+                st.code(result.stdout)
+        else:
+            st.success("Crawling completed successfully.")
+            with st.expander("📜 View Output Log"):
+                st.code(result.stdout)
