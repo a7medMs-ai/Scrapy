@@ -10,13 +10,13 @@ ITEM_PIPELINES = {
 }
 
 FEEDS = {
-    "data/output.json": {
-        "format": "json",
+    "data/output.jsonl": {
+        "format": "jsonlines",
         "encoding": "utf8",
         "store_empty": False,
-        "indent": 4,
     }
 }
+
 
 DEPTH_LIMIT = 2  # prevent crawling too deep
 LOG_LEVEL = "INFO"
