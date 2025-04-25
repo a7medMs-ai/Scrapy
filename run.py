@@ -1,5 +1,6 @@
 import sys
 import os
+os.makedirs("data", exist_ok=True)
 from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
 from crawler.spiders.multilingual_spider import MultilingualSpider
