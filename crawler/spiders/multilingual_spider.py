@@ -2,7 +2,7 @@ import scrapy
 from bs4 import BeautifulSoup
 from langdetect import detect
 from urllib.parse import urlparse, urljoin
-import os
+from crawler.items import PageItem
 
 class MultilingualSpider(scrapy.Spider):
     name = "multilingual_spider"
@@ -20,7 +20,6 @@ class MultilingualSpider(scrapy.Spider):
             return
         self.visited_urls.add(current_url)
 
-        # Extract page content
         soup = BeautifulSoup(response.text, "html.parser")
         text_content = soup.get_text(separator=" ", strip=True)
 
@@ -29,18 +28,13 @@ class MultilingualSpider(scrapy.Spider):
         except:
             detected_lang = "unknown"
 
-        lang_dir = os.path.join("data", "raw", detected_lang)
-        os.makedirs(lang_dir, exist_ok=True)
+        item = PageItem()
+        item["url"] = current_url
+        item["language"] = detected_lang
+        item["content"] = text_content
+        item["html"] = response.text
+        yield item
 
-        # Save HTML page with a filename based on URL
-        parsed_url = urlparse(current_url)
-        filename = parsed_url.path.strip("/").replace("/", "_") or "index"
-        file_path = os.path.join(lang_dir, f"{filename}.html")
-
-        with open(file_path, "w", encoding="utf-8") as f:
-            f.write(response.text)
-
-        # Recursively follow internal links
         for href in response.css("a::attr(href)").getall():
             full_url = urljoin(response.url, href)
             if urlparse(full_url).netloc == urlparse(self.start_urls[0]).netloc:
