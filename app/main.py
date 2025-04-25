@@ -1,48 +1,35 @@
+# Writing the full Streamlit `main.py` as per your request
+
+streamlit_main_code = """
 import streamlit as st
 import subprocess
 import os
-import json
-import zipfile
 import pandas as pd
+from app.utils.zip_exporter import zip_html_pages
+from bs4 import BeautifulSoup
+import re
+from urllib.parse import urlparse
+from pathlib import Path
+import shutil
 
-# Create ZIP from jsonl
-def create_zip():
-    with zipfile.ZipFile("data/output.zip", "w") as zipf:
-        zipf.write("data/output.jsonl", arcname="output.jsonl")
+# Constants
+HTML_PATH = "output/html_pages"
+ZIP_PATH = "output/zips"
+EXCEL_REPORT_PATH = "output/Website_Crawl_Report.xlsx"
 
-# Convert JSONL to Excel
-def json_to_excel(jsonl_file, excel_file):
-    records = []
-    with open(jsonl_file, "r", encoding="utf-8") as f:
-        for line in f:
-            try:
-                record = json.loads(line)
-                records.append(record)
-            except json.JSONDecodeError:
-                continue
-    df = pd.DataFrame(records)
-    df.to_excel(excel_file, index=False)
+# Setup
+st.set_page_config(page_title="Multilingual Website Crawler", layout="wide")
+st.title("🌍 Multilingual Website Crawler")
+st.caption("Developed by: Localization Engineering Dept. | Streamlined for content analysis and word count extraction.")
 
-# Streamlit config
-st.set_page_config(
-    layout="wide",
-    page_title="Multilingual Website Crawler",
-    page_icon="🌐"
-)
-
-# Title and description
-st.title("🌐 Multilingual Website Crawler Tool")
-st.markdown("Analyze and extract multilingual content from websites using Scrapy.")
-
-# URL input
-url = st.text_input("Enter the website URL you want to analyze", "https://example.com")
+url = st.text_input("Enter the website URL to crawl:", placeholder="https://example.com")
 
 if st.button("Start Crawling"):
-    if not url:
+    if not url.strip():
         st.warning("Please enter a valid URL.")
     else:
-        st.info("Starting the crawling process...")
-        os.makedirs("data", exist_ok=True)
+        st.info("Crawling in progress... Please wait.")
+        Path("output").mkdir(exist_ok=True)
 
         result = subprocess.run(
             ["scrapy", "crawl", "multilingual_spider", "-a", f"start_url={url}"],
@@ -51,52 +38,58 @@ if st.button("Start Crawling"):
         )
 
         if result.returncode != 0:
-            st.error("An error occurred during crawling.")
-            with st.expander("🔍 View Error Log (stderr)"):
-                st.code(result.stderr)
-            with st.expander("📜 View Process Log (stdout)"):
-                st.code(result.stdout)
+            st.error("Crawling failed. Please check the URL or spider configuration.")
+            st.code(result.stderr)
         else:
-            st.success("Crawling completed successfully.")
+            st.success("Crawling completed.")
 
-            jsonl_path = "data/output.jsonl"
-            zip_path = "data/output.zip"
-            excel_path = "data/output.xlsx"
+            report_data = []
+            for lang in os.listdir(HTML_PATH):
+                lang_path = os.path.join(HTML_PATH, lang)
+                if os.path.isdir(lang_path):
+                    for filename in os.listdir(lang_path):
+                        if filename.endswith(".html"):
+                            file_path = os.path.join(lang_path, filename)
+                            with open(file_path, "r", encoding="utf-8") as f:
+                                html_content = f.read()
 
-            if os.path.exists(jsonl_path):
-                create_zip()
-                json_to_excel(jsonl_path, excel_path)
+                            soup = BeautifulSoup(html_content, "html.parser")
+                            text = soup.get_text(separator=" ", strip=True)
+                            word_count = len(re.findall(r"\\w+", text))
+                            segments = len(soup.find_all(["p", "div", "li", "span"]))
+                            has_media = bool(soup.find_all(["img", "video", "audio"]))
+                            title = soup.title.string.strip() if soup.title else filename
 
-                with open(zip_path, "rb") as f:
-                    st.download_button("📦 Download as ZIP", f, file_name="output.zip", mime="application/zip")
+                            report_data.append({
+                                "Lang": lang,
+                                "Page Counter": len(report_data) + 1,
+                                "Page Name": filename,
+                                "Title": title,
+                                "Word Count": word_count,
+                                "Segments": segments,
+                                "Has Media": has_media,
+                                "File Path": file_path
+                            })
 
-                with open(excel_path, "rb") as f:
-                    st.download_button("📊 Download as Excel", f, file_name="output.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+            df_report = pd.DataFrame(report_data)
 
-                with open(jsonl_path, "r", encoding="utf-8") as f:
-                    lines = f.readlines()
-                parsed = [json.loads(line) for line in lines if line.strip()]
-                with st.expander("📁 View Raw JSONL"):
-                    st.json(parsed)
-            else:
-                st.warning("No output data found. Make sure the spider scraped something.")
+            with pd.ExcelWriter(EXCEL_REPORT_PATH, engine="xlsxwriter") as writer:
+                for lang in df_report["Lang"].unique():
+                    df_lang = df_report[df_report["Lang"] == lang].drop(columns=["Lang"])
+                    df_lang.to_excel(writer, sheet_name=lang[:31], index=False)
 
-# Footer - About
-st.markdown("---")
-st.subheader("ℹ️ About This Tool")
-st.markdown("""
-This tool crawls websites starting from a given URL, extracts multilingual content, and detects the language of each page.
+            st.success("Excel report generated.")
+            st.download_button("Download Excel Report", open(EXCEL_REPORT_PATH, "rb"), file_name="Website_Crawl_Report.xlsx")
 
-**Features:**
-- Language detection using `langdetect`
-- HTML parsing using `BeautifulSoup`
-- Structured export to `.jsonl`, `.xlsx`, and `.zip`
-- User-friendly interface built with Streamlit
+            zip_files = zip_html_pages(HTML_PATH, ZIP_PATH)
+            for zip_file in zip_files:
+                filename = os.path.basename(zip_file)
+                st.download_button(f"Download ZIP ({filename})", open(zip_file, "rb"), file_name=filename)
+"""
 
-**How to Use:**
-1. Enter a valid website URL.
-2. Click **Start Crawling**.
-3. Download the results in your preferred format.
+# Save the file to app/main.py
+main_py_path = "/mnt/data/scrapy_project/Scrapy-main/app/main.py"
+with open(main_py_path, "w", encoding="utf-8") as f:
+    f.write(streamlit_main_code)
 
-> ⚠️ Please ensure the website allows crawling.
-""")
+main_py_path
