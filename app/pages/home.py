@@ -13,8 +13,10 @@ def app():
         else:
             st.info("Starting the crawling process...")
 
+            # Ensure data directory exists
             os.makedirs("data", exist_ok=True)
 
+            # Run the spider and capture the output
             result = subprocess.run(
                 ["scrapy", "crawl", "multilingual_spider", "-a", f"start_url={url}"],
                 capture_output=True,
