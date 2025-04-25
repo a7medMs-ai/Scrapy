@@ -1,29 +1,31 @@
 import pandas as pd
-import os
+import streamlit as st
+from io import BytesIO
 
-def generate_excel_report(excel_file_path):
+def generate_excel_report(uploaded_file):
     """
-    Reads an Excel file and processes each sheet.
+    Reads an uploaded Excel file and processes each sheet.
 
     Parameters:
-    - excel_file_path (str): Path to the Excel file.
+    - uploaded_file: The uploaded Excel file from Streamlit's file uploader.
 
     Returns:
     - dict: A dictionary with sheet names as keys and DataFrames as values.
     """
-    if not os.path.exists(excel_file_path):
-        raise FileNotFoundError(f"The file {excel_file_path} does not exist.")
+    if uploaded_file is None:
+        st.warning("Please upload an Excel file to proceed.")
+        return None
 
     try:
-        # Load all sheets into a dictionary
-        df_original = pd.read_excel(excel_file_path, sheet_name=None)
+        # Read all sheets into a dictionary
+        df_original = pd.read_excel(uploaded_file, sheet_name=None)
     except Exception as e:
-        raise ValueError(f"An error occurred while reading the Excel file: {e}")
+        st.error(f"An error occurred while reading the Excel file: {e}")
+        return None
 
     # Process each sheet
     for sheet_name, df in df_original.items():
-        # Example processing: print sheet name and number of rows
-        print(f"Processing sheet: {sheet_name}, Rows: {len(df)}")
+        st.write(f"Processing sheet: {sheet_name}, Rows: {len(df)}")
         # Add your processing logic here
 
     return df_original
