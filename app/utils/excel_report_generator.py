@@ -1,6 +1,5 @@
 import pandas as pd
 import streamlit as st
-from io import BytesIO
 
 def generate_excel_report(uploaded_file):
     """
@@ -12,10 +11,6 @@ def generate_excel_report(uploaded_file):
     Returns:
     - dict: A dictionary with sheet names as keys and DataFrames as values.
     """
-    if uploaded_file is None:
-        st.warning("Please upload an Excel file to proceed.")
-        return None
-
     try:
         # Read all sheets into a dictionary
         df_original = pd.read_excel(uploaded_file, sheet_name=None)
