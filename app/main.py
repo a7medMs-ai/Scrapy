@@ -5,26 +5,36 @@ import json
 import zipfile
 import pandas as pd
 
+# Create ZIP from jsonl
 def create_zip():
     with zipfile.ZipFile("data/output.zip", "w") as zipf:
-        zipf.write("data/output.json", arcname="output.json")
+        zipf.write("data/output.jsonl", arcname="output.jsonl")
 
-def json_to_excel(json_file, excel_file):
-    with open(json_file, "r", encoding="utf-8") as f:
-        data = json.load(f)
-    df = pd.DataFrame(data)
+# Convert JSONL to Excel
+def json_to_excel(jsonl_file, excel_file):
+    records = []
+    with open(jsonl_file, "r", encoding="utf-8") as f:
+        for line in f:
+            try:
+                record = json.loads(line)
+                records.append(record)
+            except json.JSONDecodeError:
+                continue
+    df = pd.DataFrame(records)
     df.to_excel(excel_file, index=False)
 
-# Streamlit page config
+# Streamlit config
 st.set_page_config(
     layout="wide",
     page_title="Multilingual Website Crawler",
     page_icon="🌐"
 )
 
+# Title and description
 st.title("🌐 Multilingual Website Crawler Tool")
 st.markdown("Analyze and extract multilingual content from websites using Scrapy.")
 
+# URL input
 url = st.text_input("Enter the website URL you want to analyze", "https://example.com")
 
 if st.button("Start Crawling"):
@@ -49,13 +59,13 @@ if st.button("Start Crawling"):
         else:
             st.success("Crawling completed successfully.")
 
-            json_path = "data/output.json"
+            jsonl_path = "data/output.jsonl"
             zip_path = "data/output.zip"
             excel_path = "data/output.xlsx"
 
-            if os.path.exists(json_path):
+            if os.path.exists(jsonl_path):
                 create_zip()
-                json_to_excel(json_path, excel_path)
+                json_to_excel(jsonl_path, excel_path)
 
                 with open(zip_path, "rb") as f:
                     st.download_button("📦 Download as ZIP", f, file_name="output.zip", mime="application/zip")
@@ -63,9 +73,30 @@ if st.button("Start Crawling"):
                 with open(excel_path, "rb") as f:
                     st.download_button("📊 Download as Excel", f, file_name="output.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
-                with open(json_path, "r", encoding="utf-8") as f:
-                    raw_json = json.load(f)
-                with st.expander("📁 View Raw JSON"):
-                    st.json(raw_json)
+                with open(jsonl_path, "r", encoding="utf-8") as f:
+                    lines = f.readlines()
+                parsed = [json.loads(line) for line in lines if line.strip()]
+                with st.expander("📁 View Raw JSONL"):
+                    st.json(parsed)
             else:
                 st.warning("No output data found. Make sure the spider scraped something.")
+
+# Footer - About
+st.markdown("---")
+st.subheader("ℹ️ About This Tool")
+st.markdown("""
+This tool crawls websites starting from a given URL, extracts multilingual content, and detects the language of each page.
+
+**Features:**
+- Language detection using `langdetect`
+- HTML parsing using `BeautifulSoup`
+- Structured export to `.jsonl`, `.xlsx`, and `.zip`
+- User-friendly interface built with Streamlit
+
+**How to Use:**
+1. Enter a valid website URL.
+2. Click **Start Crawling**.
+3. Download the results in your preferred format.
+
+> ⚠️ Please ensure the website allows crawling.
+""")
