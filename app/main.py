@@ -1,6 +1,3 @@
-# Writing the full Streamlit `main.py` as per your request
-
-streamlit_main_code = """
 import streamlit as st
 import subprocess
 import os
@@ -10,19 +7,16 @@ from bs4 import BeautifulSoup
 import re
 from urllib.parse import urlparse
 from pathlib import Path
-import shutil
 
-# Constants
 HTML_PATH = "output/html_pages"
 ZIP_PATH = "output/zips"
 EXCEL_REPORT_PATH = "output/Website_Crawl_Report.xlsx"
 
-# Setup
 st.set_page_config(page_title="Multilingual Website Crawler", layout="wide")
 st.title("🌍 Multilingual Website Crawler")
-st.caption("Developed by: Localization Engineering Dept. | Streamlined for content analysis and word count extraction.")
+st.caption("Developed by Localization Engineering Team")
 
-url = st.text_input("Enter the website URL to crawl:", placeholder="https://example.com")
+url = st.text_input("Enter website URL:", placeholder="https://example.com")
 
 if st.button("Start Crawling"):
     if not url.strip():
@@ -38,7 +32,7 @@ if st.button("Start Crawling"):
         )
 
         if result.returncode != 0:
-            st.error("Crawling failed. Please check the URL or spider configuration.")
+            st.error("Crawling failed. Please check the logs.")
             st.code(result.stderr)
         else:
             st.success("Crawling completed.")
@@ -85,9 +79,3 @@ if st.button("Start Crawling"):
             for zip_file in zip_files:
                 filename = os.path.basename(zip_file)
                 st.download_button(f"Download ZIP ({filename})", open(zip_file, "rb"), file_name=filename)
-"""
-
-# Save the file to app/main.py
-main_py_path = "/mnt/data/scrapy_project/Scrapy-main/app/main.py"
-
-main_py_path
