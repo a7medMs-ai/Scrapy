@@ -1,5 +1,6 @@
-from urllib.parse import urlparse
+import os
 import pandas as pd
+from urllib.parse import urlparse
 
 def analyze_row(row):
     notes = []
@@ -11,32 +12,39 @@ def analyze_row(row):
         notes.append("No media found - text-only")
     return "; ".join(notes) if notes else ""
 
-def generate_excel_report(df_original, base_url):
-    parsed_url = urlparse(base_url)
+def generate_excel_report(html_root):
+    """
+    Generates an Excel report from crawled HTML data.
+
+    Parameters:
+    - html_root (str): The root directory where the HTML pages are stored.
+
+    Returns:
+    - str: The path to the generated Excel report.
+    """
+    # Ensure the output directory exists
+    output_dir = os.path.join(html_root, "output")
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Define the path to the Excel report
+    parsed_url = urlparse(html_root)
     domain_name = parsed_url.netloc.replace("www.", "")
-    log_filename = f"Log '{domain_name}'.xlsx"
+    log_filename = f"Log_{domain_name}.xlsx"
+    log_filepath = os.path.join(output_dir, log_filename)
 
-    processed_sheets = {}
+    # Load the crawled data
+    data_file = os.path.join(html_root, "crawled_data.json")
+    if not os.path.exists(data_file):
+        raise FileNotFoundError(f"Crawled data not found at {data_file}")
 
-    for sheet, df in df_original.items():
-        df = df.copy()
+    with open(data_file, "r", encoding="utf-8") as f:
+        crawled_data = pd.read_json(f)
 
-        # Remove "Title" column if it exists
-        if "Title" in df.columns:
-            df = df.drop(columns=["Title"])
+    # Process the data
+    crawled_data["Notes"] = crawled_data.apply(analyze_row, axis=1)
 
-        # Rename "File Path" to "URL" if it exists
-        if "File Path" in df.columns:
-            df = df.rename(columns={"File Path": "URL"})
+    # Save to Excel
+    with pd.ExcelWriter(log_filepath, engine="xlsxwriter") as writer:
+        crawled_data.to_excel(writer, index=False, sheet_name="Crawled Data")
 
-        # Add "Notes" column based on analysis
-        df["Notes"] = df.apply(analyze_row, axis=1)
-
-        processed_sheets[sheet] = df
-
-    # Write to Excel
-    with pd.ExcelWriter(log_filename, engine='xlsxwriter') as writer:
-        for sheet_name, df in processed_sheets.items():
-            df.to_excel(writer, sheet_name=sheet_name, index=False)
-
-    return log_filename
+    return log_filepath
