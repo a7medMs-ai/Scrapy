@@ -1,46 +1,47 @@
 import scrapy
-from urllib.parse import urljoin, urlparse
-import os
 from bs4 import BeautifulSoup
 from langdetect import detect
+from urllib.parse import urlparse, urljoin
+import os
 
 class MultilingualSpider(scrapy.Spider):
     name = "multilingual_spider"
 
     def __init__(self, start_url=None, *args, **kwargs):
-        super(MultilingualSpider, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         if not start_url:
-            raise ValueError("يرجى تحديد start_url")
+            raise ValueError("start_url is required to start crawling.")
         self.start_urls = [start_url]
         self.visited_urls = set()
 
     def parse(self, response):
-        url = response.url
-        if url in self.visited_urls:
+        current_url = response.url
+        if current_url in self.visited_urls:
             return
-        self.visited_urls.add(url)
+        self.visited_urls.add(current_url)
 
-        # استخراج النص لتحديد اللغة
-        soup = BeautifulSoup(response.text, 'html.parser')
-        text = soup.get_text()
+        # Extract page content
+        soup = BeautifulSoup(response.text, "html.parser")
+        text_content = soup.get_text(separator=" ", strip=True)
+
         try:
-            lang = detect(text)
+            detected_lang = detect(text_content)
         except:
-            lang = 'unknown'
+            detected_lang = "unknown"
 
-        # إنشاء مجلد للغة إذا لم يكن موجودًا
-        dir_path = os.path.join('data', 'raw', lang)
-        os.makedirs(dir_path, exist_ok=True)
+        lang_dir = os.path.join("data", "raw", detected_lang)
+        os.makedirs(lang_dir, exist_ok=True)
 
-        # حفظ الصفحة
-        parsed_url = urlparse(url)
-        filename = parsed_url.path.strip('/').replace('/', '_') or 'index'
-        filepath = os.path.join(dir_path, f"{filename}.html")
-        with open(filepath, 'w', encoding='utf-8') as f:
+        # Save HTML page with a filename based on URL
+        parsed_url = urlparse(current_url)
+        filename = parsed_url.path.strip("/").replace("/", "_") or "index"
+        file_path = os.path.join(lang_dir, f"{filename}.html")
+
+        with open(file_path, "w", encoding="utf-8") as f:
             f.write(response.text)
 
-        # متابعة الروابط الداخلية
-        for href in response.css('a::attr(href)').getall():
-            next_url = urljoin(response.url, href)
-            if urlparse(next_url).netloc == urlparse(self.start_urls[0]).netloc:
-                yield scrapy.Request(next_url, callback=self.parse)
+        # Recursively follow internal links
+        for href in response.css("a::attr(href)").getall():
+            full_url = urljoin(response.url, href)
+            if urlparse(full_url).netloc == urlparse(self.start_urls[0]).netloc:
+                yield scrapy.Request(full_url, callback=self.parse)
