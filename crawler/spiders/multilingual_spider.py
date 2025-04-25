@@ -28,13 +28,16 @@ class MultilingualSpider(scrapy.Spider):
         except:
             detected_lang = "unknown"
 
+        # ✅ Create and yield a Scrapy item
         item = PageItem()
         item["url"] = current_url
         item["language"] = detected_lang
-        item["content"] = text_content
-        item["html"] = response.text
+        item["content"] = text_content[:1000]  # limit to avoid huge files
+        item["html"] = response.text[:2000]    # limit for performance
+
         yield item
 
+        # ✅ Continue crawling internal links
         for href in response.css("a::attr(href)").getall():
             full_url = urljoin(response.url, href)
             if urlparse(full_url).netloc == urlparse(self.start_urls[0]).netloc:
