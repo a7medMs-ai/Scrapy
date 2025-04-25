@@ -89,7 +89,5 @@ if st.button("Start Crawling"):
 
 # Save the file to app/main.py
 main_py_path = "/mnt/data/scrapy_project/Scrapy-main/app/main.py"
-with open(main_py_path, "w", encoding="utf-8") as f:
-    f.write(streamlit_main_code)
 
 main_py_path
