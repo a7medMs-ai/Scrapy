@@ -5,18 +5,15 @@ def app():
 
     st.subheader("How to Use This Tool")
     st.markdown("""
-    1. Navigate to the **Home** page.
-    2. Enter the URL of the website you want to analyze.
-    3. Click **Start Crawling** to begin the multilingual scan.
-    4. After the process finishes, visit the **Reports** section to:
-        - Download the Excel reports for each language.
-        - Download ZIP files containing the raw HTML pages.
-    5. Use the extracted files inside CAT tools like **Trados** or **memoQ**.
-
-    **Notes:**
-    - Only internal website pages are crawled.
-    - External links (like social media) are skipped.
-    - Media detection is included.
+    1. Go to the **Home** page and enter a website URL.
+    2. Click the **Start Crawling** button.
+    3. The tool will automatically:
+        - Crawl all internal pages.
+        - Group them by language.
+        - Extract content for localization analysis.
+    4. Go to the **Reports** page to download:
+        - Excel reports per language.
+        - ZIP files for translation or CAT tools.
     """)
 
     st.subheader("🧑‍💼 Developer Information")
