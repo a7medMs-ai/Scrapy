@@ -1,4 +1,4 @@
 class LocalizationPipeline:
     def process_item(self, item, spider):
-        # Optional: clean or transform scraped content
+        # You can add content cleaning or transformation here
         return item
