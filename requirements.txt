@@ -1,0 +1,19 @@
+streamlit
+scrapy
+beautifulsoup4
+langdetect
+pandas
+openpyxl
+# Core dependencies
+scrapy>=2.8.0
+streamlit>=1.30.0
+
+# HTML parsing
+beautifulsoup4>=4.12.0
+
+# Language detection
+langdetect>=1.0.9
+
+# Data analysis & reporting
+pandas>=2.1.0
+openpyxl>=3.1.2

@@ -1,6 +1,0 @@
-streamlit
-scrapy
-beautifulsoup4
-langdetect
-pandas
-openpyxl
