@@ -1,25 +1,29 @@
 import streamlit as st
 
 def app():
-    st.title("📘 Tool Instructions")
-
-    st.subheader("How to Use This Tool")
+    st.title("ℹ️ Scrapy Localization Tool")
+    
     st.markdown("""
-    1. Go to the **Home** page and enter a website URL.
-    2. Click the **Start Crawling** button.
-    3. The tool will automatically:
-        - Crawl all internal pages.
-        - Group them by language.
-        - Extract content for localization analysis.
-    4. Go to the **Reports** page to download:
-        - Excel reports per language.
-        - ZIP files for translation or CAT tools.
-    """)
+    ## 🔧 About the Tool
+    This tool was built for **Localization Engineers** working in translation and website content analysis.
+    
+    It helps in:
+    - Crawling websites and downloading their pages in HTML format.
+    - Organizing pages by language in separate ZIP files.
+    - Generating detailed Excel reports (word counts, segments, media presence, and more).
+    - Preparing packages ready for CAT tools like **SDL Trados** and **memoQ**.
 
-    st.subheader("🧑‍💼 Developer Information")
-    st.markdown("""
-    **Name**: Ahmed Mostafa Saad  
-    **Position**: Localization Engineering & TMS Support Team Lead  
-    **Email**: [ahmed.mostafaa@future-group.com](mailto:ahmed.mostafaa@future-group.com)  
-    **Company**: Future Group Translation Services  
+    ## 🛠️ Built With
+    - **Python**
+    - **Streamlit** for web interface
+    - **Scrapy** for website crawling
+    - **Pandas & Openpyxl** for Excel reporting
+
+    ## 👨‍💻 Developer Info
+    - **Developer**: Your Name Here
+    - **Company**: Your Company
+    - **Email**: your.email@company.com
+    - **GitHub**: [Scrapy Project Repository](https://github.com/your-repo-link)
+
+    Feel free to reach out for any bugs, suggestions, or collaboration.
     """)
