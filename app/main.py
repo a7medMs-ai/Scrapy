@@ -13,12 +13,21 @@ def load_custom_css():
 def main():
     load_custom_css()
 
+    # Header
+    st.markdown("""
+        <h1 style='text-align: center;'>🌍 Website Localization Scrapy Tool</h1>
+        <p style='text-align: center; font-size: 16px;'>Your smart assistant for crawling, analyzing and preparing localization-ready website packages</p>
+        <hr>
+    """, unsafe_allow_html=True)
+
+    # Page Router
     page = st.sidebar.radio("📌 Select Page", ["Home", "About"])
 
     if page == "Home":
         home.home_page()
     elif page == "About":
         about.about_page()
+
 
 if __name__ == "__main__":
     main()
