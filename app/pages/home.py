@@ -11,7 +11,12 @@ def app():
     st.markdown("### Upload HTML Files Organized by Language")
     st.markdown("Each language should be in a separate folder (e.g. 'ar', 'en').")
 
-    uploaded_folder = st.file_uploader("Upload ZIP file of website pages", type=["zip"])
+st.subheader("Crawl Website")
+url = st.text_input("Enter website URL to crawl")
+if st.button("Start Crawling") and url:
+    # استدعاء دالة الزحف هنا
+    st.info(f"Crawling started for: {url}")
+    crawl_website(url)
 
     if uploaded_folder:
         with zipfile.ZipFile(uploaded_folder, 'r') as zip_ref:
