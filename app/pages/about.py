@@ -1,38 +1,45 @@
-# app/pages/about.py
-
 import streamlit as st
 
-def about_page():
-    st.title("ℹ️ About Website Localization Scrapy Tool")
+def about():
+    st.title("About Scrapy Localization Tool")
 
-    st.markdown("### What is this tool?")
-    st.write("""
-    The Website Scrapy & Localization Tool is designed for localization professionals to automate the process of extracting website content, 
-    performing pre-translation analysis, and generating structured reports (similar to CAT tools like Trados or memoQ).
-    """)
-
-    st.markdown("### Key Features")
     st.markdown("""
-    - Crawl all public pages of any website.
-    - Detect and classify by language automatically.
-    - Generate Excel report with word count, segments, media presence.
-    - Export HTML pages per language in ZIP format.
-    """)
+    ## What is this tool?
 
-    st.markdown("### Technical Details")
-    st.markdown("""
-    - Built with Python, Streamlit, and aiohttp for asynchronous crawling.
-    - Uses BeautifulSoup + langdetect for content and language analysis.
-    - Generates Excel reports using openpyxl and pandas.
-    """)
+    The **Scrapy Localization Tool** helps you estimate translation efforts by scraping any live webpage,
+    extracting text content and providing structured reports – all in seconds.
 
-    st.markdown("### Developer Information")
-    st.markdown("""
+    ---
+
+    ## Key Features
+
+    - 🔗 Scrape any website via direct URL input
+    - 📊 Count words, extract titles and timestamps
+    - 📁 Download content as Excel or HTML ZIP
+    - 🔁 Stay on the page for continuous analysis with “Start New Session”
+
+    ---
+
+    ## Technical Highlights
+
+    - Built with **Python**, **Streamlit**, **BeautifulSoup**, **Pandas**
+    - Instant download via memory (no files saved to disk)
+    - Fast response using `st.session_state` to persist data
+
+    ---
+
+    ## Developer Info
+
     **Ahmed Mostafa Saad**  
-    🧑‍💼 *Localization Engineering & TMS Support Team Lead*  
-    📧 [ahmed.mostafaa@future-group.com](mailto:ahmed.mostafaa@future-group.com)  
-    🏢 Future Group Translation Services
+    Team Lead – Localization Engineering  
+    📧 [ahmed.mostafaa@future-group.com](mailto:ahmed.mostafaa@future-group.com)
+
+    ---
+
+    ## Need Support?
+
+    If you have questions, feature ideas, or collaboration opportunities, don’t hesitate to reach out!
     """)
 
-    st.markdown("---")
-    st.caption("Website Localization Engineering Tool © 2025 • v1.0.0")
+if __name__ == "__main__":
+    about()
