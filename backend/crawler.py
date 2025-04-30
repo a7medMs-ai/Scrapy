@@ -95,4 +95,13 @@ def zip_all_languages(base_output_dir):
             for file in files:
                 if file.endswith(".html"):
                     full_path = os.path.join(root, file)
-                    arc
+                    arcname = os.path.relpath(full_path, base_output_dir)
+                    zipf.write(full_path, arcname=arcname)
+    return combined_zip
+
+def process_site(url):
+    website_name = urlparse(url).netloc.replace("www.", "").split(".")[0]
+    pages, output_dir = crawl_site(url)
+    excel_path = analyze_and_report(pages, output_dir, website_name)
+    zip_path = zip_all_languages(output_dir)
+    return excel_path, zip_path, output_dir
