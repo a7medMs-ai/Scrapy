@@ -63,7 +63,7 @@ def main():
         - Download Excel or HTML ZIP once analysis is complete.
     """)
 
-    if st.button("🔄 Start New Session"):
+    if st.button("🔄 Start New Session", key="reset_button"):
         st.session_state.results = None
         st.session_state.excel_data = None
         st.session_state.zip_data = None
@@ -71,7 +71,7 @@ def main():
 
     if not st.session_state.results:
         url = st.text_input("🔗 Enter full website URL", placeholder="https://example.com")
-        if st.button("🔍 Analyze Website") and url:
+        if st.button("🔍 Analyze Website", key="analyze_button") and url:
             with st.spinner("Fetching and analyzing..."):
                 html = fetch_html_from_url(url)
                 if html:
@@ -82,23 +82,21 @@ def main():
                     st.session_state.zip_data = save_html_as_zip(html, url)
                     st.success(f"✅ Analysis complete for: {url}")
 
-if st.session_state.results is not None:
-    st.dataframe(st.session_state.results)
+    if st.session_state.results is not None:
+        st.dataframe(st.session_state.results)
 
-    col1, col2, col3 = st.columns([1, 1, 2])
-    with col1:
-        st.download_button("📥 Download Excel Report", data=st.session_state.excel_data,
-                           file_name="report.xlsx",
-                           mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", key="excel_dl")
-    with col2:
-        st.download_button("📦 Download HTML ZIP", data=st.session_state.zip_data,
-                           file_name="html_page.zip", mime="application/zip", key="zip_dl")
-    with col3:
-        if st.button("🔄 Start New Session", key="new_session_2"):
-            st.session_state.results = None
-            st.session_state.excel_data = None
-            st.session_state.zip_data = None
-            st.experimental_rerun()
+        col1, col2, col3 = st.columns([1, 1, 2])
+        with col1:
+            st.download_button("📥 Download Excel Report", data=st.session_state.excel_data,
+                               file_name="report.xlsx",
+                               mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                               key="excel_dl")
+        with col2:
+            st.download_button("📦 Download HTML ZIP", data=st.session_state.zip_data,
+                               file_name="html_page.zip", mime="application/zip",
+                               key="zip_dl")
+        with col3:
+            st.button("🔄 Start New Session", key="new_session_2")
 
 if __name__ == "__main__":
     main()
