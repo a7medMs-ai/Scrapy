@@ -48,3 +48,4 @@ def get_excel_filename(site_name: str) -> str:
     '''
     site_name_clean = site_name.replace('https://', '').replace('http://', '').split('/')[0].replace('.', '_')
     return f"website_{site_name_clean}_Scrapy.xlsx"
+    
