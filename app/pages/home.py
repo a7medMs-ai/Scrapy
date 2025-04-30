@@ -1,71 +1,52 @@
+# app/pages/home.py
+
 import streamlit as st
 import os
-from analyzer.content_analyzer import extract_page_data
-from utils.excel_report_generator import generate_excel_report, get_excel_filename
-import zipfile
-import io
+from backend.crawler import process_site
 
-def app():
-    st.title("🌐 Website Localization Analysis")
+st.set_page_config(page_title="Website Scrapy Tool", layout="wide")
 
-    st.markdown("### Upload HTML Files Organized by Language")
-    st.markdown("Each language should be in a separate folder (e.g. 'ar', 'en').")
+def home_page():
+    st.title("🌐 Website Scrapy & Localization Tool")
 
-st.subheader("Crawl Website")
-url = st.text_input("Enter website URL to crawl")
-if st.button("Start Crawling") and url:
-    # استدعاء دالة الزحف هنا
-    st.info(f"Crawling started for: {url}")
-    crawl_website(url)
+    with st.expander("📝 Instructions", expanded=True):
+        st.markdown("""
+        1. Paste the website URL you want to analyze.
+        2. Choose the language code (e.g., `ar`, `en`).
+        3. Click **Start Crawling**.
+        4. Download the Excel and ZIP once the process is complete.
 
-    if uploaded_folder:
-        with zipfile.ZipFile(uploaded_folder, 'r') as zip_ref:
-            extract_path = f"temp_data/{uploaded_folder.name.split('.')[0]}"
-            zip_ref.extractall(extract_path)
-            st.success("Files extracted successfully.")
+        **Note:** Each session creates separate files. No overlap between runs.
+        """)
 
-            # Detect folders = languages
-            languages = [f for f in os.listdir(extract_path) if os.path.isdir(os.path.join(extract_path, f))]
-            data_by_language = {}
+    st.markdown("---")
+    url = st.text_input("🔗 Enter the website URL (e.g., https://torjoman.com)")
+    lang_code = st.text_input("🌍 Language Code (e.g., ar, en)", value="ar")
+    max_pages = st.slider("📄 Max Pages to Crawl", 5, 100, 20)
 
-            for lang in languages:
-                lang_path = os.path.join(extract_path, lang)
-                st.markdown(f"Analyzing language: `{lang}` ...")
-                page_data = []
+    if st.button("🚀 Start Crawling and Analysis"):
+        if not url or not lang_code:
+            st.warning("Please enter both URL and language code.")
+        else:
+            with st.spinner("Crawling and analyzing... Please wait."):
+                excel_path, zip_path, session_dir = process_site(url, lang_code=lang_code, max_pages=max_pages)
 
-                counter = 1
-                for filename in sorted(os.listdir(lang_path)):
-                    if filename.endswith(".html"):
-                        file_path = os.path.join(lang_path, filename)
-                        with open(file_path, 'r', encoding='utf-8') as f:
-                            html = f.read()
-                        page_url = f"file://{filename}"
-                        page_data.append(
-                            extract_page_data(html, page_url, filename, counter)
-                        )
-                        counter += 1
-                data_by_language[lang] = page_data
+                st.success("✅ Done!")
+                st.info("You can now download your results:")
 
-            # Generate Excel report
-            st.markdown("### 📊 Download Excel Report")
-            site_name = uploaded_folder.name.replace('.zip', '')
-            excel_file = generate_excel_report(data_by_language, site_name)
-            excel_name = get_excel_filename(site_name)
-            st.download_button("📥 Download Excel", data=excel_file, file_name=excel_name)
+                # Download buttons
+                with open(excel_path, "rb") as f:
+                    st.download_button(
+                        label="📊 Download Excel Report",
+                        data=f,
+                        file_name=os.path.basename(excel_path),
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    )
 
-            # Generate ZIP for each language
-            st.markdown("### 🗂️ Download HTML ZIPs per Language")
-            for lang in data_by_language:
-                lang_zip_bytes = io.BytesIO()
-                with zipfile.ZipFile(lang_zip_bytes, "w") as zf:
-                    lang_folder_path = os.path.join(extract_path, lang)
-                    for filename in os.listdir(lang_folder_path):
-                        full_path = os.path.join(lang_folder_path, filename)
-                        zf.write(full_path, arcname=filename)
-                lang_zip_bytes.seek(0)
-                st.download_button(
-                    label=f"Download {lang.upper()} ZIP",
-                    data=lang_zip_bytes,
-                    file_name=f"{site_name}_{lang}.zip",
-                    key=f"zip_{lang}"
-                )
+                with open(zip_path, "rb") as f:
+                    st.download_button(
+                        label="📁 Download HTML ZIP",
+                        data=f,
+                        file_name=os.path.basename(zip_path),
+                        mime="application/zip"
+                    )
