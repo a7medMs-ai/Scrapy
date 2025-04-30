@@ -50,8 +50,12 @@ def save_html_as_zip(html_content, url):
 def main():
     st.set_page_config(page_title="Scrapy Localization Tool", layout="wide")
     load_custom_css()
-
     st.title("🌐 Website Scraping & Localization Estimator Tool")
+
+    if 'results' not in st.session_state:
+        st.session_state.results = None
+        st.session_state.excel_data = None
+        st.session_state.zip_data = None
 
     st.markdown("""
         **Instructions:**
@@ -59,31 +63,38 @@ def main():
         - Download Excel or HTML ZIP once analysis is complete.
     """)
 
-    url = st.text_input("🔗 Enter full website URL", placeholder="https://example.com")
-    run_analysis = st.button("🔍 Analyze Website")
+    if st.button("🔄 Start New Session"):
+        st.session_state.results = None
+        st.session_state.excel_data = None
+        st.session_state.zip_data = None
+        st.experimental_rerun()
 
-    if run_analysis and url:
-        with st.spinner("Fetching and analyzing..."):
-            html = fetch_html_from_url(url)
-            if html:
-                results = analyze_html(html)
-                df = pd.DataFrame([results])
-                excel_data = convert_df_to_excel(df)
-                zip_data = save_html_as_zip(html, url)
+    if not st.session_state.results:
+        url = st.text_input("🔗 Enter full website URL", placeholder="https://example.com")
+        if st.button("🔍 Analyze Website") and url:
+            with st.spinner("Fetching and analyzing..."):
+                html = fetch_html_from_url(url)
+                if html:
+                    results = analyze_html(html)
+                    df = pd.DataFrame([results])
+                    st.session_state.results = df
+                    st.session_state.excel_data = convert_df_to_excel(df)
+                    st.session_state.zip_data = save_html_as_zip(html, url)
+                    st.success(f"✅ Analysis complete for: {url}")
 
-                st.success(f"✅ Analysis complete for: {url}")
-                st.dataframe(df)
+    if st.session_state.results is not None:
+        st.dataframe(st.session_state.results)
 
-                col1, col2, col3 = st.columns([1, 1, 2])
-                with col1:
-                    st.download_button("📥 Download Excel Report", data=excel_data,
-                                       file_name="report.xlsx",
-                                       mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-                with col2:
-                    st.download_button("📦 Download HTML ZIP", data=zip_data,
-                                       file_name="html_page.zip", mime="application/zip")
-                with col3:
-                    st.button("🔄 Start New Session")
+        col1, col2, col3 = st.columns([1, 1, 2])
+        with col1:
+            st.download_button("📥 Download Excel Report", data=st.session_state.excel_data,
+                               file_name="report.xlsx",
+                               mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        with col2:
+            st.download_button("📦 Download HTML ZIP", data=st.session_state.zip_data,
+                               file_name="html_page.zip", mime="application/zip")
+        with col3:
+            st.button("🔄 Start New Session")  # مكرر للتشجيع على الاستمرار
 
 if __name__ == "__main__":
     main()
