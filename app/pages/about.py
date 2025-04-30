@@ -16,7 +16,6 @@ def about():
     - 🔗 Scrape any website via direct URL input
     - 📊 Count words, extract titles and timestamps
     - 📁 Download content as Excel or HTML ZIP
-    - 🔁 Stay on the page for continuous analysis with “Start New Session”
 
     ---
 
@@ -31,7 +30,8 @@ def about():
     ## Developer Info
 
     **Ahmed Mostafa Saad**  
-    Team Lead – Localization Engineering  
+    Team Lead – Localization Engineering - TMS Suport
+    Company: Future Group Translation Services
     📧 [ahmed.mostafaa@future-group.com](mailto:ahmed.mostafaa@future-group.com)
 
     ---
