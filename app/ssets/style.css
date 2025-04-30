@@ -1,0 +1,48 @@
+/* Center content and make it more spacious */
+.main > div {
+    padding: 2rem 4rem;
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* Header title */
+h1 {
+    color: #2c3e50;
+    font-size: 2.2em;
+}
+
+/* Section titles */
+h2, h3 {
+    color: #34495e;
+}
+
+/* Buttons */
+.stButton > button {
+    background-color: #0066cc;
+    color: white;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    padding: 0.6rem 1.2rem;
+    margin: 10px 0;
+}
+
+.stButton > button:hover {
+    background-color: #004d99;
+}
+
+/* Markdown formatting */
+.markdown-text-container {
+    font-size: 1rem;
+    color: #333;
+}
+
+/* Download buttons */
+a[download] {
+    font-weight: bold;
+}
+
+/* Fix sidebar */
+.css-1d391kg {
+    background-color: #ffffff !important;
+}
