@@ -1,8 +1,9 @@
 # app/pages/home.py
 
 import streamlit as st
+import sys
 import os
-from backend.crawler import process_site
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 
 st.set_page_config(page_title="Website Scrapy Tool", layout="wide")
 
