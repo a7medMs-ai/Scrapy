@@ -1,14 +1,23 @@
-# Multilingual Web Crawler
+# 🌍 Website Localization Scrapy Tool
 
-This is a Scrapy-based web crawler that:
-- Crawls a website from a given starting URL
-- Detects the language of each page
-- Extracts plain text and HTML
-- Saves the results to a structured JSON file
+A web-based solution for localization engineers to crawl websites, analyze their content, and generate Trados-style reports.
 
-## How to Run
+## 🚀 Features
+- Crawl entire websites (public pages).
+- Extract all HTML pages and analyze:
+  - Word count
+  - Segment count
+  - Media presence
+  - Language detection
+  - Full content
+- Generate Excel reports (1 sheet per language).
+- Export HTML pages in language-specific ZIP files.
+- Streamlit-based UI.
 
-1. Install requirements:
+## 📦 How to Run Locally
 
 ```bash
+git clone https://github.com/YOUR_USERNAME/Scrapy.git
+cd Scrapy
 pip install -r requirements.txt
+streamlit run app/main.py
