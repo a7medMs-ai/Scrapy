@@ -3,10 +3,13 @@ import os
 import pandas as pd
 from io import BytesIO
 from zipfile import ZipFile
-import subprocess
 import uuid
 import shutil
 from urllib.parse import urlparse
+
+# ✅ جديد: استخدام Scrapy مباشرة من بايثون
+from scrapy.cmdline import execute
+import sys
 
 SCRAPY_OUTPUT_ROOT = "output/html_pages"
 
@@ -17,12 +20,11 @@ def load_custom_css():
             st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 def run_scrapy_spider(start_url):
-    project_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../'))
-    cmd = [
-        "scrapy", "crawl", "multilingual_spider",
-        "-a", f"start_url={start_url}",
-    ]
-    subprocess.run(cmd, cwd=project_path, check=True)
+    # Scrapy expects to be run as main module — we simulate that
+    sys.argv = ['scrapy', 'crawl', 'multilingual_spider', '-a', f'start_url={start_url}']
+    project_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../'))
+    os.chdir(project_dir)
+    execute()
 
 def generate_excel_from_scraped_html(base_dir, url):
     data = []
@@ -95,7 +97,6 @@ def main():
                 with st.spinner("Scraping entire site (this may take a moment)..."):
                     shutil.rmtree(SCRAPY_OUTPUT_ROOT, ignore_errors=True)  # clean old output
                     run_scrapy_spider(url)
-                    # get first subdir inside html_pages (e.g., 'en')
                     lang_dirs = [os.path.join(SCRAPY_OUTPUT_ROOT, d) for d in os.listdir(SCRAPY_OUTPUT_ROOT) if os.path.isdir(os.path.join(SCRAPY_OUTPUT_ROOT, d))]
                     if not lang_dirs:
                         raise Exception("No HTML pages found.")
